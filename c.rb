@@ -2,6 +2,8 @@ loopno = 0
 
 loop do
   Datum.transaction do
+    Datum.connection.execute("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE")
+
     a, b = Datum.a, Datum.b
 
     delta = (b.value - a.value).abs
