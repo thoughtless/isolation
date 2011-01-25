@@ -13,8 +13,15 @@ loop do
         Datum.b.update_attributes :value => 0
       end
 
+      @timeout_counter = Time.now # Reset the timeout counter
     rescue ActiveRecord::StatementInvalid => e
-      raise e unless e.message =~ /^PGError: ERROR:  could not serialize access due to concurrent update/
+      @timeout_counter ||= Time.now # Set the timeout counter, if needed
+      if Time.now - @timeout_counter > 30 #seconds
+        # Give up after 30 seconds
+        raise e
+      else
+        raise e unless e.message =~ /^PGError: ERROR:  could not serialize access due to concurrent update/
+      end
     end
   end
 end
